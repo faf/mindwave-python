@@ -11,7 +11,7 @@ pwm_LED = GPIO.PWM(LED, 100)
 pwm_LED.start(0)
 
 # setup headset
-headset = mindwave.Headset('/dev/ttyUSB0', '1E5F')
+headset = mindwave.Headset('/dev/ttyUSB0', '1F5D')
 time.sleep(2)
 
 headset.connect()

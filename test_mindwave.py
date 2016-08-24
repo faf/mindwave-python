@@ -1,6 +1,6 @@
 import mindwave, time
 
-headset = mindwave.Headset('/dev/ttyUSB3', '1E5F')
+headset = mindwave.Headset('/dev/ttyUSB0', '1F5D')
 time.sleep(2)
 
 headset.connect()
