@@ -1,4 +1,5 @@
 import mindwave, time
+from pprint import pprint
 
 headset = mindwave.Headset('/dev/ttyUSB0', '1F5D')
 time.sleep(2)
@@ -15,4 +16,5 @@ print "Connected."
 
 while True:
     time.sleep(.5)
-    print "Attention: %s, Meditation: %s" % (headset.attention, headset.meditation)
+    print "Raw value: %s, Attention: %s, Meditation: %s" % (headset.raw_value, headset.attention, headset.meditation)
+    pprint(headset.waves)

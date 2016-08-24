@@ -1,4 +1,5 @@
 import select, serial, threading
+from pprint import pprint
 
 # Byte codes
 CONNECT              = '\xc0'
@@ -16,6 +17,7 @@ HEADSET_DISCONNECTED = '\xd2'
 REQUEST_DENIED       = '\xd3'
 STANDBY_SCAN         = '\xd4'
 RAW_VALUE            = '\x80'
+ASIC_EEG_POWER       = '\x83'
 
 # Status codes
 STATUS_CONNECTED     = 'connected'
@@ -137,8 +139,6 @@ class Headset(object):
                     except IndexError:
                         continue
                     value, payload = payload[:vlength], payload[vlength:]
-                    # Multi-byte EEG and Raw Wave codes not included
-                    # Raw Value added due to Mindset Communications Protocol
 
                     # FIX: accessing value crashes elseway
                     if code == RAW_VALUE and len(value) >= 2:
@@ -198,7 +198,13 @@ class Headset(object):
                             if run_handlers:
                                 for handler in self.headset.standby_handlers:
                                     handler(self.headset)
-
+                    elif code == ASIC_EEG_POWER:
+                        j = 0
+                        for i in ['delta', 'theta', 'low-alpha', 'high-alpha', 'low-beta', 'high-beta', 'low-gamma', 'mid-gamma']:
+                            self.headset.waves[i] = ord(value[j])*255*255+ord(value[j+1])*255+ord(value[j+2])
+                            j += 3
+                        for handler in self.headset.waves_handlers:
+                            handler(self.headset, self.headset.waves)
 
     def __init__(self, device, headset_id=None, open_serial=True):
         """Initialize the  headset."""
@@ -212,6 +218,7 @@ class Headset(object):
         self.meditation = 0
         self.blink = 0
         self.raw_value = 0
+        self.waves = {}
         self.status = None
 
         # Create event handler lists
@@ -221,6 +228,7 @@ class Headset(object):
         self.meditation_handlers = []
         self.blink_handlers = []
         self.raw_value_handlers = []
+        self.waves_handlers = []
         self.headset_connected_handlers = []
         self.headset_notfound_handlers = []
         self.headset_disconnected_handlers = []
